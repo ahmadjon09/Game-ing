@@ -443,7 +443,7 @@ export default function WordQuiz () {
                   className='flex items-center justify-between bg-white bg-opacity-10 p-2 sm:p-3 rounded-lg hover:bg-opacity-20 transition-all'
                 >
                   <div className='min-w-0 flex-1 mr-2'>
-                    <p className='font-medium text-sm sm:text-base truncate text-white'>
+                    <p className='font-medium text-sm sm:text-base truncate text-black'>
                       {file.name}
                     </p>
                     <p className='text-xs text-purple-300'>
