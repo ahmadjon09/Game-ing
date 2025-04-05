@@ -1,3 +1,5 @@
+'use client'
+
 import { useState, useEffect, useRef } from 'react'
 import {
   Sparkles,
@@ -7,7 +9,8 @@ import {
   Award,
   Volume2,
   Clock,
-  Settings
+  Settings,
+  StopCircle
 } from 'lucide-react'
 
 export default function WordQuiz () {
@@ -27,7 +30,9 @@ export default function WordQuiz () {
   const [timeLeft, setTimeLeft] = useState(0)
   const [difficulty, setDifficulty] = useState('medium')
   const [showSettings, setShowSettings] = useState(false)
+  const [showStopConfirm, setShowStopConfirm] = useState(false)
   const timerRef = useRef(null)
+
   const formatNumber = num => {
     if (num >= 1_000_000_000_000) {
       return (num / 1_000_000_000_000).toFixed(1).replace(/\.0$/, '') + 'T'
@@ -270,6 +275,16 @@ export default function WordQuiz () {
     }
   }
 
+  const stopQuiz = () => {
+    clearTimeout(timerRef.current)
+    setCurrentWord(null)
+    setOptions([])
+    setStreak(0)
+    setMessage('')
+    setShowStopConfirm(false)
+    speechSynthesis.cancel()
+  }
+
   return (
     <div className='min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-blue-900 via-purple-900 to-pink-800 p-4 sm:p-6 text-white'>
       <div className='w-full max-w-md mb-4 sm:mb-8 text-center'>
@@ -294,6 +309,15 @@ export default function WordQuiz () {
           )}
 
           <div className='flex gap-2'>
+            {currentWord && (
+              <button
+                onClick={() => setShowStopConfirm(true)}
+                className='bg-red-500 bg-opacity-30 px-3 py-1.5 sm:px-4 sm:py-2 rounded-full hover:bg-opacity-50 transition-all'
+                title='Stop Quiz'
+              >
+                <StopCircle size={16} className='text-red-200' />
+              </button>
+            )}
             <button
               onClick={() => setShowSettings(!showSettings)}
               className='bg-black bg-opacity-30 px-3 py-1.5 sm:px-4 sm:py-2 rounded-full hover:bg-opacity-50 transition-all'
@@ -309,6 +333,32 @@ export default function WordQuiz () {
           </div>
         </div>
       </div>
+
+      {showStopConfirm && (
+        <div className='fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4'>
+          <div className='bg-slate-800 rounded-xl p-6 max-w-xs w-full animate-fade-in'>
+            <h3 className='text-lg font-bold mb-3 text-white'>Stop Quiz?</h3>
+            <p className='text-slate-300 mb-4'>
+              Are you sure you want to stop the current quiz? Your streak will
+              be lost.
+            </p>
+            <div className='flex gap-3 justify-end'>
+              <button
+                onClick={() => setShowStopConfirm(false)}
+                className='px-4 py-2 rounded-lg bg-slate-700 text-white hover:bg-slate-600 transition-colors'
+              >
+                Cancel
+              </button>
+              <button
+                onClick={stopQuiz}
+                className='px-4 py-2 rounded-lg bg-red-600 text-white hover:bg-red-500 transition-colors flex items-center gap-1'
+              >
+                <StopCircle size={16} /> Stop Quiz
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {showSettings && (
         <div className='w-full max-w-md mb-4 sm:mb-8 bg-black bg-opacity-20 backdrop-blur-md rounded-2xl p-4 sm:p-6 animate-fade-in'>
@@ -393,7 +443,7 @@ export default function WordQuiz () {
                   className='flex items-center justify-between bg-white bg-opacity-10 p-2 sm:p-3 rounded-lg hover:bg-opacity-20 transition-all'
                 >
                   <div className='min-w-0 flex-1 mr-2'>
-                    <p className='font-medium text-sm sm:text-base truncate text-gray-600'>
+                    <p className='font-medium text-sm sm:text-base truncate text-white'>
                       {file.name}
                     </p>
                     <p className='text-xs text-purple-300'>
@@ -571,6 +621,15 @@ export default function WordQuiz () {
           )}
         </div>
       )}
+      <p className='text-sm text-gray-500 absolute bottom-2'>
+        Coded by :{' '}
+        <a
+          className='text-blue-600 hover:underline'
+          href='https://t.me/ItsNoWonder'
+        >
+          Ahmadjon
+        </a>
+      </p>
     </div>
   )
 }
